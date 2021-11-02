@@ -20,22 +20,22 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#ifdef ICEBREAKER
-#  define MEM_TOTAL 0x20000 /* 128 KB */
+#if defined(ICEBREAKER) || defined(UPDUINO)
+#define MEM_TOTAL 0x20000 /* 128 KB */
 #elif HX8KDEMO
-#  define MEM_TOTAL 0x200 /* 2 KB */
+#define MEM_TOTAL 0x200 /* 2 KB */
 #else
-#  error "Set -DICEBREAKER or -DHX8KDEMO when compiling firmware.c"
+#error "Set -DICEBREAKER or -DHX8KDEMO when compiling firmware.c"
 #endif
 
 // a pointer to this is a null pointer, but the compiler does not
 // know that because "sram" is a linker symbol from sections.lds.
 extern uint32_t sram;
 
-#define reg_spictrl (*(volatile uint32_t*)0x02000000)
-#define reg_uart_clkdiv (*(volatile uint32_t*)0x02000004)
-#define reg_uart_data (*(volatile uint32_t*)0x02000008)
-#define reg_leds (*(volatile uint32_t*)0x03000000)
+#define reg_spictrl (*(volatile uint32_t *)0x02000000)
+#define reg_uart_clkdiv (*(volatile uint32_t *)0x02000004)
+#define reg_uart_data (*(volatile uint32_t *)0x02000008)
+#define reg_leds (*(volatile uint32_t *)0x03000000)
 
 // --------------------------------------------------------
 
@@ -52,7 +52,7 @@ void flashio(uint8_t *data, int len, uint8_t wrencmd)
 	while (src_ptr != &flashio_worker_end)
 		*(dst_ptr++) = *(src_ptr++);
 
-	((void(*)(uint8_t*, uint32_t, uint32_t))func)(data, len, wrencmd);
+	((void (*)(uint8_t *, uint32_t, uint32_t))func)(data, len, wrencmd);
 }
 
 #ifdef HX8KDEMO
@@ -110,7 +110,7 @@ void set_flash_mode_qddr()
 }
 #endif
 
-#ifdef ICEBREAKER
+#if defined(ICEBREAKER) || defined(UPDUINO)
 void set_flash_qspi_flag()
 {
 	uint8_t buffer[8];
@@ -170,9 +170,11 @@ void print(const char *p)
 
 void print_hex(uint32_t v, int digits)
 {
-	for (int i = 7; i >= 0; i--) {
-		char c = "0123456789abcdef"[(v >> (4*i)) & 15];
-		if (c == '0' && i >= digits) continue;
+	for (int i = 7; i >= 0; i--)
+	{
+		char c = "0123456789abcdef"[(v >> (4 * i)) & 15];
+		if (c == '0' && i >= digits)
+			continue;
 		putchar(c);
 		digits = i;
 	}
@@ -180,41 +182,151 @@ void print_hex(uint32_t v, int digits)
 
 void print_dec(uint32_t v)
 {
-	if (v >= 1000) {
+	if (v >= 1000)
+	{
 		print(">=1000");
 		return;
 	}
 
-	if      (v >= 900) { putchar('9'); v -= 900; }
-	else if (v >= 800) { putchar('8'); v -= 800; }
-	else if (v >= 700) { putchar('7'); v -= 700; }
-	else if (v >= 600) { putchar('6'); v -= 600; }
-	else if (v >= 500) { putchar('5'); v -= 500; }
-	else if (v >= 400) { putchar('4'); v -= 400; }
-	else if (v >= 300) { putchar('3'); v -= 300; }
-	else if (v >= 200) { putchar('2'); v -= 200; }
-	else if (v >= 100) { putchar('1'); v -= 100; }
+	if (v >= 900)
+	{
+		putchar('9');
+		v -= 900;
+	}
+	else if (v >= 800)
+	{
+		putchar('8');
+		v -= 800;
+	}
+	else if (v >= 700)
+	{
+		putchar('7');
+		v -= 700;
+	}
+	else if (v >= 600)
+	{
+		putchar('6');
+		v -= 600;
+	}
+	else if (v >= 500)
+	{
+		putchar('5');
+		v -= 500;
+	}
+	else if (v >= 400)
+	{
+		putchar('4');
+		v -= 400;
+	}
+	else if (v >= 300)
+	{
+		putchar('3');
+		v -= 300;
+	}
+	else if (v >= 200)
+	{
+		putchar('2');
+		v -= 200;
+	}
+	else if (v >= 100)
+	{
+		putchar('1');
+		v -= 100;
+	}
 
-	if      (v >= 90) { putchar('9'); v -= 90; }
-	else if (v >= 80) { putchar('8'); v -= 80; }
-	else if (v >= 70) { putchar('7'); v -= 70; }
-	else if (v >= 60) { putchar('6'); v -= 60; }
-	else if (v >= 50) { putchar('5'); v -= 50; }
-	else if (v >= 40) { putchar('4'); v -= 40; }
-	else if (v >= 30) { putchar('3'); v -= 30; }
-	else if (v >= 20) { putchar('2'); v -= 20; }
-	else if (v >= 10) { putchar('1'); v -= 10; }
+	if (v >= 90)
+	{
+		putchar('9');
+		v -= 90;
+	}
+	else if (v >= 80)
+	{
+		putchar('8');
+		v -= 80;
+	}
+	else if (v >= 70)
+	{
+		putchar('7');
+		v -= 70;
+	}
+	else if (v >= 60)
+	{
+		putchar('6');
+		v -= 60;
+	}
+	else if (v >= 50)
+	{
+		putchar('5');
+		v -= 50;
+	}
+	else if (v >= 40)
+	{
+		putchar('4');
+		v -= 40;
+	}
+	else if (v >= 30)
+	{
+		putchar('3');
+		v -= 30;
+	}
+	else if (v >= 20)
+	{
+		putchar('2');
+		v -= 20;
+	}
+	else if (v >= 10)
+	{
+		putchar('1');
+		v -= 10;
+	}
 
-	if      (v >= 9) { putchar('9'); v -= 9; }
-	else if (v >= 8) { putchar('8'); v -= 8; }
-	else if (v >= 7) { putchar('7'); v -= 7; }
-	else if (v >= 6) { putchar('6'); v -= 6; }
-	else if (v >= 5) { putchar('5'); v -= 5; }
-	else if (v >= 4) { putchar('4'); v -= 4; }
-	else if (v >= 3) { putchar('3'); v -= 3; }
-	else if (v >= 2) { putchar('2'); v -= 2; }
-	else if (v >= 1) { putchar('1'); v -= 1; }
-	else putchar('0');
+	if (v >= 9)
+	{
+		putchar('9');
+		v -= 9;
+	}
+	else if (v >= 8)
+	{
+		putchar('8');
+		v -= 8;
+	}
+	else if (v >= 7)
+	{
+		putchar('7');
+		v -= 7;
+	}
+	else if (v >= 6)
+	{
+		putchar('6');
+		v -= 6;
+	}
+	else if (v >= 5)
+	{
+		putchar('5');
+		v -= 5;
+	}
+	else if (v >= 4)
+	{
+		putchar('4');
+		v -= 4;
+	}
+	else if (v >= 3)
+	{
+		putchar('3');
+		v -= 3;
+	}
+	else if (v >= 2)
+	{
+		putchar('2');
+		v -= 2;
+	}
+	else if (v >= 1)
+	{
+		putchar('1');
+		v -= 1;
+	}
+	else
+		putchar('0');
 }
 
 char getchar_prompt(char *prompt)
@@ -222,17 +334,22 @@ char getchar_prompt(char *prompt)
 	int32_t c = -1;
 
 	uint32_t cycles_begin, cycles_now, cycles;
-	__asm__ volatile ("rdcycle %0" : "=r"(cycles_begin));
+	__asm__ volatile("rdcycle %0"
+					 : "=r"(cycles_begin));
 
-	reg_leds = ~0;
+	// reg_leds = ~0;
+	reg_leds = 0xaaaaaaaa;
 
 	if (prompt)
 		print(prompt);
 
-	while (c == -1) {
-		__asm__ volatile ("rdcycle %0" : "=r"(cycles_now));
+	while (c == -1)
+	{
+		__asm__ volatile("rdcycle %0"
+						 : "=r"(cycles_now));
 		cycles = cycles_now - cycles_begin;
-		if (cycles > 12000000) {
+		if (cycles > 12000000)
+		{
 			if (prompt)
 				print(prompt);
 			cycles_begin = cycles_now;
@@ -295,25 +412,29 @@ void cmd_memtest()
 	int stride = 256;
 	uint32_t state;
 
-	volatile uint32_t *base_word = (uint32_t *) 0;
-	volatile uint8_t *base_byte = (uint8_t *) 0;
+	volatile uint32_t *base_word = (uint32_t *)0;
+	volatile uint8_t *base_byte = (uint8_t *)0;
 
 	print("Running memtest ");
 
 	// Walk in stride increments, word access
-	for (int i = 1; i <= cyc_count; i++) {
+	for (int i = 1; i <= cyc_count; i++)
+	{
 		state = i;
 
-		for (int word = 0; word < MEM_TOTAL / sizeof(int); word += stride) {
+		for (int word = 0; word < MEM_TOTAL / sizeof(int); word += stride)
+		{
 			*(base_word + word) = xorshift32(&state);
 		}
 
 		state = i;
 
-		for (int word = 0; word < MEM_TOTAL / sizeof(int); word += stride) {
-			if (*(base_word + word) != xorshift32(&state)) {
+		for (int word = 0; word < MEM_TOTAL / sizeof(int); word += stride)
+		{
+			if (*(base_word + word) != xorshift32(&state))
+			{
 				print(" ***FAILED WORD*** at ");
-				print_hex(4*word, 4);
+				print_hex(4 * word, 4);
 				print("\n");
 				return;
 			}
@@ -323,12 +444,15 @@ void cmd_memtest()
 	}
 
 	// Byte access
-	for (int byte = 0; byte < 128; byte++) {
-		*(base_byte + byte) = (uint8_t) byte;
+	for (int byte = 0; byte < 128; byte++)
+	{
+		*(base_byte + byte) = (uint8_t)byte;
 	}
 
-	for (int byte = 0; byte < 128; byte++) {
-		if (*(base_byte + byte) != (uint8_t) byte) {
+	for (int byte = 0; byte < 128; byte++)
+	{
+		if (*(base_byte + byte) != (uint8_t)byte)
+		{
 			print(" ***FAILED BYTE*** at ");
 			print_hex(byte, 4);
 			print("\n");
@@ -343,10 +467,11 @@ void cmd_memtest()
 
 void cmd_read_flash_id()
 {
-	uint8_t buffer[17] = { 0x9F, /* zeros */ };
+	uint8_t buffer[17] = {0x9F, /* zeros */};
 	flashio(buffer, 17, 0);
 
-	for (int i = 1; i <= 16; i++) {
+	for (int i = 1; i <= 16; i++)
+	{
 		putchar(' ');
 		print_hex(buffer[i], 2);
 	}
@@ -386,7 +511,7 @@ void cmd_read_flash_regs()
 }
 #endif
 
-#ifdef ICEBREAKER
+#if defined(ICEBREAKER) || defined(UPDUINO)
 uint8_t cmd_read_flash_reg(uint8_t cmd)
 {
 	uint8_t buffer[2] = {cmd, 0};
@@ -396,7 +521,8 @@ uint8_t cmd_read_flash_reg(uint8_t cmd)
 
 void print_reg_bit(int val, const char *name)
 {
-	for (int i = 0; i < 12; i++) {
+	for (int i = 0; i < 12; i++)
+	{
 		if (*name == 0)
 			putchar(' ');
 		else
@@ -452,14 +578,16 @@ void cmd_read_flash_regs()
 uint32_t cmd_benchmark(bool verbose, uint32_t *instns_p)
 {
 	uint8_t data[256];
-	uint32_t *words = (void*)data;
+	uint32_t *words = (void *)data;
 
 	uint32_t x32 = 314159265;
 
 	uint32_t cycles_begin, cycles_end;
 	uint32_t instns_begin, instns_end;
-	__asm__ volatile ("rdcycle %0" : "=r"(cycles_begin));
-	__asm__ volatile ("rdinstret %0" : "=r"(instns_begin));
+	__asm__ volatile("rdcycle %0"
+					 : "=r"(cycles_begin));
+	__asm__ volatile("rdinstret %0"
+					 : "=r"(instns_begin));
 
 	for (int i = 0; i < 20; i++)
 	{
@@ -483,8 +611,10 @@ uint32_t cmd_benchmark(bool verbose, uint32_t *instns_p)
 		}
 	}
 
-	__asm__ volatile ("rdcycle %0" : "=r"(cycles_end));
-	__asm__ volatile ("rdinstret %0" : "=r"(instns_end));
+	__asm__ volatile("rdcycle %0"
+					 : "=r"(cycles_end));
+	__asm__ volatile("rdinstret %0"
+					 : "=r"(instns_end));
 
 	if (verbose)
 	{
@@ -610,7 +740,7 @@ void cmd_benchmark_all()
 }
 #endif
 
-#ifdef ICEBREAKER
+#if defined(ICEBREAKER) || defined(UPDUINO)
 void cmd_benchmark_all()
 {
 	uint32_t instns = 0;
@@ -649,7 +779,6 @@ void cmd_benchmark_all()
 	enable_flash_crm();
 	print_hex(cmd_benchmark(false, &instns), 8);
 	putchar('\n');
-
 }
 #endif
 
@@ -673,7 +802,9 @@ void main()
 	set_flash_qspi_flag();
 
 	reg_leds = 127;
-	while (getchar_prompt("Press ENTER to continue..\n") != '\r') { /* wait */ }
+	while (getchar_prompt("Press ENTER to continue..\n") != '\r')
+	{ /* wait */
+	}
 
 	print("\n");
 	print("  ____  _          ____         ____\n");

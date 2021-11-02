@@ -17,12 +17,3 @@ set_io flash_io3  13
 set_io led1       41
 set_io led2       39
 set_io led3       40
-set_io led4       23
-set_io led5       26
-
-# Onboard LEDs
-set_io ledr_n     11
-set_io ledg_n     37
-
-# External clock pin
-set_io -nowarn EXT_CLK  20

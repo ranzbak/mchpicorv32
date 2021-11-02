@@ -33,11 +33,6 @@
            output led1,
            output led2,
            output led3,
-           output led4,
-           output led5,
-
-           output ledr_n,
-           output ledg_n,
 
            output flash_csb,
            output flash_clk,
@@ -61,11 +56,6 @@
          assign led1 = leds[1];
          assign led2 = leds[2];
          assign led3 = leds[3];
-         assign led4 = leds[4];
-         assign led5 = leds[5];
-
-         assign ledr_n = !leds[6];
-         assign ledg_n = !leds[7];
 
          wire flash_io0_oe, flash_io0_do, flash_io0_di;
          wire flash_io1_oe, flash_io1_do, flash_io1_di;
@@ -118,7 +108,7 @@
          end
 
          picosoc #(
-                   .BARREL_SHIFTER(0),
+                   .BARREL_SHIFTER(1),
                    .ENABLE_MULDIV(0),
                    .MEM_WORDS(MEM_WORDS)
                  ) soc (
