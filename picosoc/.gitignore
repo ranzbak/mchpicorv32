@@ -24,6 +24,18 @@
 /icebreaker_fw.hex
 /icebreaker_fw.bin
 /icebreaker_sections.lds
+/upduino3.asc
+/upduino3.bin
+/upduino3.json
+/upduino3.log
+/upduino3.rpt
+/upduino3_syn.v
+/upduino3_syn_tb.vvp
+/upduino3_tb.vvp
+/upduino3_fw.elf
+/upduino3_fw.hex
+/upduino3_fw.bin
+/upduino3_sections.lds
 /testbench.vcd
 /cmos.log
 
