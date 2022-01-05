@@ -1,0 +1,19 @@
+# 16 MHz clock
+set_io clk        35
+
+# RS232
+set_io ser_rx      6
+set_io ser_tx      9
+
+# SPI Flash
+set_io flash_clk  19
+set_io flash_csb  18
+set_io flash_io0  21
+set_io flash_io1  13
+set_io flash_io2  12
+set_io flash_io3  20
+
+# LEDs (PMOD 2)
+set_io led1       41
+set_io led2       39
+set_io led3       40

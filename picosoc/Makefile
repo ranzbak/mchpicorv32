@@ -137,16 +137,62 @@ upd3prog_fw: upduino3_fw.bin
 	iceprog -o 1M upduino3_fw.bin
 
 upduino3_sections.lds: sections.lds
-	$(CROSS)cpp -P -DICEBREAKER -o $@ $^
+	$(CROSS)cpp -P -DUPDUINO -o $@ $^
 
 upduino3_fw.elf: upduino3_sections.lds start.s firmware.c
-	$(CROSS)gcc $(CFLAGS) -DICEBREAKER -march=rv32ic -Wl,-Bstatic,-T,upduino3_sections.lds,--strip-debug -ffreestanding -nostdlib -o upduino3_fw.elf start.s firmware.c
+	$(CROSS)gcc $(CFLAGS) -DUPDUINO -march=rv32ic -Wl,-Bstatic,-T,upduino3_sections.lds,--strip-debug -ffreestanding -nostdlib -o upduino3_fw.elf start.s firmware.c
 
 upduino3_fw.hex: upduino3_fw.elf
 	$(CROSS)objcopy -O verilog upduino3_fw.elf upduino3_fw.hex
 
 upduino3_fw.bin: upduino3_fw.elf
 	$(CROSS)objcopy -O binary upduino3_fw.elf upduino3_fw.bin
+
+# ---- iCE40 MCH2022 V2 Board ----
+
+mch2sim: mch2reaker_tb.vvp mch2reaker_fw.hex
+	vvp -N $< +firmware=mch2reaker_fw.hex
+
+mch2synsim: mch2reaker_syn_tb.vvp mch2reaker_fw.hex
+	vvp -N $< +firmware=mch2reaker_fw.hex
+
+mch2022v2.json: mch2022v2.v ice40up5k_spram.v spimemio.v simpleuart.v picosoc.v ../picorv32.v
+	yosys -ql mch2022v2.log -p 'synth_ice40 -top mch2022v2 -json mch2022v2.json' $^
+
+mch2022v2_tb.vvp: mch2022v2_tb.v mch2022v2.v ice40up5k_spram.v spimemio.v simpleuart.v picosoc.v ../picorv32.v spiflash.v
+	iverilog -s testbench -o $@ $^ `yosys-config --datdir/ice40/cells_sim.v`
+
+mch2022v2_syn_tb.vvp: mch2022v2_tb.v mch2022v2_syn.v spiflash.v
+	iverilog -s testbench -o $@ $^ `yosys-config --datdir/ice40/cells_sim.v`
+
+mch2022v2_syn.v: mch2022v2.json
+	yosys -p 'read_json mch2022v2.json; write_verilog mch2022v2_syn.v'
+
+mch2022v2.asc: mch2022v2.pcf mch2022v2.json
+	nextpnr-ice40 --freq 13 --up5k --asc mch2022v2.asc --pcf mch2022v2.pcf --json mch2022v2.json
+
+mch2022v2.bin: mch2022v2.asc
+	icetime -d up5k -c 16 -mtr mch2022v2.rpt mch2022v2.asc
+	icepack mch2022v2.asc mch2022v2.bin
+
+mch2prog: mch2022v2.bin mch2022v2_fw.bin
+	iceprog mch2022v2.bin
+	iceprog -o 1M mch2022v2_fw.bin
+
+mch2prog_fw: mch2022v2_fw.bin
+	iceprog -o 1M mch2022v2_fw.bin
+
+mch2022v2_sections.lds: sections.lds
+	$(CROSS)cpp -P -DUPDUINO -o $@ $^
+
+mch2022v2_fw.elf: mch2022v2_sections.lds start.s firmware.c
+	$(CROSS)gcc $(CFLAGS) -DUPDUINO -march=rv32ic -Wl,-Bstatic,-T,mch2022v2_sections.lds,--strip-debug -ffreestanding -nostdlib -o mch2022v2_fw.elf start.s firmware.c
+
+mch2022v2_fw.hex: mch2022v2_fw.elf
+	$(CROSS)objcopy -O verilog mch2022v2_fw.elf mch2022v2_fw.hex
+
+mch2022v2_fw.bin: mch2022v2_fw.elf
+	$(CROSS)objcopy -O binary mch2022v2_fw.elf mch2022v2_fw.bin
 
 # ---- Testbench for SPI Flash Model ----
 
@@ -173,6 +219,9 @@ clean:
 	rm -f icebreaker_syn.v icebreaker_syn_tb.vvp icebreaker_tb.vvp
 	rm -f upduinov3.json upduinov3.log upduinov3.asc upduinov3.rpt upduinov3.bin
 	rm -f upduinov3_syn.v upduinov3_syn_tb.vvp upduinov3_tb.vvp
+
+	rm -f mch2022v2.json mch2022v2.log mch2022v2.asc mch2022v2.rpt mch2022v2.bin
+	rm -f mch2022v2_syn.v mch2022v2_syn_tb.vvp mch2022v2_tb.vvp
 
 .PHONY: spiflash_tb clean
 .PHONY: hx8kprog hx8kprog_fw hx8ksim hx8ksynsim
