@@ -34,4 +34,13 @@
 /check.vcd
 /synth.log
 /synth.v
+/xvlog.pb
 .*.swp
+/picosoc/*.bin
+/picosoc/*.elf
+/picosoc/*.rpt
+/picosoc/*.log
+/picosoc/*.json
+/picosoc/*.asc
+/picosoc/*_sections.lds
+/xsim.dir/work

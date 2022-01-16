@@ -16,6 +16,7 @@
  *  OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  *
  */
+#define MCH2022V2 1
 
 #include <stdint.h>
 #include <stdbool.h>
@@ -24,6 +25,11 @@
 #define MEM_TOTAL 0x20000 /* 128 KB */
 #elif HX8KDEMO
 #define MEM_TOTAL 0x200 /* 2 KB */
+#elif MCH2022V2
+// FPGA block RAM
+#define MEM_TOTAL 0x20000	 /* 128 KB */
+// SPI Pseudo SRAM
+#define PSMEM_TOTAL 0x800000 /* 8 MB */
 #else
 #error "Set -DICEBREAKER or -DHX8KDEMO when compiling firmware.c"
 #endif
@@ -110,7 +116,7 @@ void set_flash_mode_qddr()
 }
 #endif
 
-#if defined(ICEBREAKER) || defined(UPDUINO)
+#if defined(ICEBREAKER) || defined(UPDUINO) || defined(MCH2022V2)
 void set_flash_qspi_flag()
 {
 	uint8_t buffer[8];
@@ -511,7 +517,7 @@ void cmd_read_flash_regs()
 }
 #endif
 
-#if defined(ICEBREAKER) || defined(UPDUINO)
+#if defined(ICEBREAKER) || defined(UPDUINO) || defined(MCH2022V2)
 uint8_t cmd_read_flash_reg(uint8_t cmd)
 {
 	uint8_t buffer[2] = {cmd, 0};
@@ -537,9 +543,9 @@ void cmd_read_flash_regs()
 {
 	putchar('\n');
 
-	uint8_t sr1 = cmd_read_flash_reg(0x05);
-	uint8_t sr2 = cmd_read_flash_reg(0x35);
-	uint8_t sr3 = cmd_read_flash_reg(0x15);
+	uint8_t sr1 = cmd_read_flash_reg(0x05); // Read status register 1
+	uint8_t sr2 = cmd_read_flash_reg(0x35); // Read config register 1
+	uint8_t sr3 = cmd_read_flash_reg(0x15); // Read config register 2
 
 	print_reg_bit(sr1 & 0x01, "S0  (BUSY)");
 	print_reg_bit(sr1 & 0x02, "S1  (WEL)");
@@ -740,7 +746,7 @@ void cmd_benchmark_all()
 }
 #endif
 
-#if defined(ICEBREAKER) || defined(UPDUINO)
+#if defined(ICEBREAKER) || defined(UPDUINO) || defined MCH2022V2
 void cmd_benchmark_all()
 {
 	uint32_t instns = 0;
@@ -799,7 +805,8 @@ void main()
 	print("Booting..\n");
 
 	reg_leds = 63;
-	set_flash_qspi_flag();
+	//set_flash_qspi_flag();
+	set_flash_mode_spi();
 
 	reg_leds = 127;
 	while (getchar_prompt("Press ENTER to continue..\n") != '\r')

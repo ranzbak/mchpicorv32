@@ -2,6 +2,9 @@
 #  define MEM_TOTAL 0x20000 /* 128 KB */
 #elif HX8KDEMO
 #  define MEM_TOTAL 0x200 /* 2 KB */
+#elif MCH2022V2
+// TODO: check if this is correct
+#  define MEM_TOTAL 0x800000 /* 8 MB */
 #else
 #  error "Set -DICEBREAKER or -DHX8KDEMO when compiling firmware.c"
 #endif

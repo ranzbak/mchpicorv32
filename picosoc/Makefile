@@ -150,16 +150,16 @@ upduino3_fw.bin: upduino3_fw.elf
 
 # ---- iCE40 MCH2022 V2 Board ----
 
-mch2sim: mch2reaker_tb.vvp mch2reaker_fw.hex
-	vvp -N $< +firmware=mch2reaker_fw.hex
+mch2sim: mch2022v2_tb.vvp mch2022v2_fw.hex
+	vvp -N $< +firmware=mch2022v2_fw.hex
 
-mch2synsim: mch2reaker_syn_tb.vvp mch2reaker_fw.hex
-	vvp -N $< +firmware=mch2reaker_fw.hex
+mch2synsim: mch2reaker_syn_tb.vvp mch2022v2_fw.hex
+	vvp -N $< +firmware=mch2022v2_fw.hex
 
-mch2022v2.json: mch2022v2.v ice40up5k_spram.v spimemio.v simpleuart.v picosoc.v ../picorv32.v
+mch2022v2.json: mch2022v2.v ice40up5k_spram.v spipsramio.v simpleuart.v picosoc.v ../picorv32.v
 	yosys -ql mch2022v2.log -p 'synth_ice40 -top mch2022v2 -json mch2022v2.json' $^
 
-mch2022v2_tb.vvp: mch2022v2_tb.v mch2022v2.v ice40up5k_spram.v spimemio.v simpleuart.v picosoc.v ../picorv32.v spiflash.v
+mch2022v2_tb.vvp: mch2022v2_tb.v mch2022v2.v ice40up5k_spram.v spipsrammio.v simpleuart.v picosoc.v ../picorv32.v spiflash.v
 	iverilog -s testbench -o $@ $^ `yosys-config --datdir/ice40/cells_sim.v`
 
 mch2022v2_syn_tb.vvp: mch2022v2_tb.v mch2022v2_syn.v spiflash.v
@@ -183,10 +183,10 @@ mch2prog_fw: mch2022v2_fw.bin
 	iceprog -o 1M mch2022v2_fw.bin
 
 mch2022v2_sections.lds: sections.lds
-	$(CROSS)cpp -P -DUPDUINO -o $@ $^
+	$(CROSS)cpp -P -DMCH2022V2 -o $@ $^
 
 mch2022v2_fw.elf: mch2022v2_sections.lds start.s firmware.c
-	$(CROSS)gcc $(CFLAGS) -DUPDUINO -march=rv32ic -Wl,-Bstatic,-T,mch2022v2_sections.lds,--strip-debug -ffreestanding -nostdlib -o mch2022v2_fw.elf start.s firmware.c
+	$(CROSS)gcc $(CFLAGS) -DMCH2022V2 -march=rv32ic -Wl,-Bstatic,-T,mch2022v2_sections.lds,--strip-debug -ffreestanding -nostdlib -o mch2022v2_fw.elf start.s firmware.c
 
 mch2022v2_fw.hex: mch2022v2_fw.elf
 	$(CROSS)objcopy -O verilog mch2022v2_fw.elf mch2022v2_fw.hex
